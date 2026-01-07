@@ -269,26 +269,39 @@ const MarketSniper = () => {
           className="mb-4"
         >
           <Card>
-            <CardContent className="p-4">
-              <div className="flex flex-wrap items-center gap-4">
-                {/* Scam Filter */}
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-primary" />
-                  <Label htmlFor="scam-filter" className="text-sm font-mono">
-                    Scam Filter
-                  </Label>
-                  <Switch
-                    id="scam-filter"
-                    checked={scamFilter}
-                    onCheckedChange={setScamFilter}
-                  />
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 sm:gap-4">
+                {/* First row on mobile */}
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  {/* Scam Filter */}
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" />
+                    <Label htmlFor="scam-filter" className="text-xs sm:text-sm font-mono whitespace-nowrap">
+                      Scam Filter
+                    </Label>
+                    <Switch
+                      id="scam-filter"
+                      checked={scamFilter}
+                      onCheckedChange={setScamFilter}
+                    />
+                  </div>
+
+                  {/* Sound Alerts */}
+                  <div className="flex items-center gap-2 sm:hidden">
+                    <Volume2 className="h-4 w-4 text-muted-foreground" />
+                    <Switch
+                      id="sound-mobile"
+                      checked={soundAlerts}
+                      onCheckedChange={setSoundAlerts}
+                    />
+                  </div>
                 </div>
 
-                {/* Chain Filter */}
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-muted-foreground" />
+                {/* Second row on mobile */}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  {/* Chain Filter */}
                   <Select value={chainFilter} onValueChange={setChainFilter}>
-                    <SelectTrigger className="w-[120px] h-8 font-mono text-xs">
+                    <SelectTrigger className="w-[100px] sm:w-[120px] h-8 font-mono text-xs">
                       <SelectValue placeholder="Chain" />
                     </SelectTrigger>
                     <SelectContent>
@@ -298,22 +311,28 @@ const MarketSniper = () => {
                       <SelectItem value="BSC">BSC</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
 
-                {/* Min Liquidity */}
-                <div className="flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-muted-foreground" />
+                  {/* Min Liquidity */}
                   <Input
                     type="number"
                     placeholder="Min Liq (K)"
                     value={minLiquidity}
                     onChange={(e) => setMinLiquidity(e.target.value)}
-                    className="w-[100px] h-8 font-mono text-xs"
+                    className="w-[90px] sm:w-[100px] h-8 font-mono text-xs"
                   />
+
+                  {/* Refresh - mobile */}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 sm:hidden"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
                 </div>
 
-                {/* Sound Alerts */}
-                <div className="flex items-center gap-2">
+                {/* Desktop-only items */}
+                <div className="hidden sm:flex items-center gap-2">
                   <Volume2 className="h-4 w-4 text-muted-foreground" />
                   <Label htmlFor="sound" className="text-sm font-mono">
                     Sound
@@ -325,32 +344,34 @@ const MarketSniper = () => {
                   />
                 </div>
 
-                <div className="flex-1" />
+                <div className="hidden sm:block flex-1" />
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="font-mono"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh
-                </Button>
+                <div className="hidden sm:flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="font-mono"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh
+                  </Button>
 
-                <Button
-                  variant="outline"
-                  className="font-mono"
-                  onClick={() => navigate("/gem-finder")}
-                >
-                  <Crosshair className="h-4 w-4 mr-2" />
-                  GEM_FINDER
-                </Button>
-                <Button
-                  className="font-mono"
-                  onClick={() => navigate("/trade")}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  OPEN_TERMINAL
-                </Button>
+                  <Button
+                    variant="outline"
+                    className="font-mono"
+                    onClick={() => navigate("/gem-finder")}
+                  >
+                    <Crosshair className="h-4 w-4 mr-2" />
+                    GEM_FINDER
+                  </Button>
+                  <Button
+                    className="font-mono"
+                    onClick={() => navigate("/trade")}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    TERMINAL
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -380,15 +401,15 @@ const MarketSniper = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="font-mono text-xs text-primary">TOKEN</TableHead>
-                      <TableHead className="font-mono text-xs text-primary">CHAIN</TableHead>
-                      <TableHead className="font-mono text-xs text-primary">LAUNCHED</TableHead>
-                      <TableHead className="font-mono text-xs text-primary">LIQUIDITY</TableHead>
-                      <TableHead className="font-mono text-xs text-primary">VOLUME</TableHead>
-                      <TableHead className="font-mono text-xs text-primary">BUYS/SELLS</TableHead>
-                      <TableHead className="font-mono text-xs text-primary">HYPE</TableHead>
-                      <TableHead className="font-mono text-xs text-primary">CHANGE</TableHead>
-                      <TableHead className="font-mono text-xs text-primary text-right">ACTIONS</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap">TOKEN</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden sm:table-cell">CHAIN</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden md:table-cell">LAUNCHED</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap">LIQ</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden lg:table-cell">VOLUME</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden lg:table-cell">B/S</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden sm:table-cell">HYPE</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap">CHG</TableHead>
+                      <TableHead className="font-mono text-xs text-primary text-right whitespace-nowrap">ACT</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -421,34 +442,34 @@ const MarketSniper = () => {
                               )}
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={chainColors[pair.chain]}>
+                          <TableCell className="hidden sm:table-cell">
+                            <Badge variant="outline" className={`${chainColors[pair.chain]} text-[10px]`}>
                               {pair.chain}
                             </Badge>
                           </TableCell>
-                          <TableCell className="font-mono text-sm">
-                            <div className="flex items-center gap-1 text-muted-foreground">
+                          <TableCell className="font-mono text-sm hidden md:table-cell">
+                            <div className="flex items-center gap-1 text-muted-foreground whitespace-nowrap">
                               <Clock className="h-3 w-3" />
                               {getTimeAgo(pair.launchedAt)}
                             </div>
                           </TableCell>
-                          <TableCell className="font-mono text-sm">
-                            <div className="flex items-center gap-1 text-blue-500">
-                              <Droplets className="h-3 w-3" />
+                          <TableCell className="font-mono text-xs sm:text-sm">
+                            <div className="flex items-center gap-1 text-blue-500 whitespace-nowrap">
+                              <Droplets className="h-3 w-3 hidden sm:block" />
                               {formatLiquidity(pair.liquidity)}
                             </div>
                           </TableCell>
-                          <TableCell className="font-mono text-sm text-purple-500">
+                          <TableCell className="font-mono text-sm text-purple-500 hidden lg:table-cell whitespace-nowrap">
                             {formatLiquidity(pair.volume)}
                           </TableCell>
-                          <TableCell className="font-mono text-sm">
+                          <TableCell className="font-mono text-sm hidden lg:table-cell whitespace-nowrap">
                             <span className="text-success">{pair.buys}</span>
                             <span className="text-muted-foreground">/</span>
                             <span className="text-destructive">{pair.sells}</span>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden sm:table-cell">
                             <div className="flex items-center gap-2">
-                              <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${
                                     pair.hypeScore >= 80 ? 'bg-success' :
@@ -457,13 +478,13 @@ const MarketSniper = () => {
                                   style={{ width: `${pair.hypeScore}%` }}
                                 />
                               </div>
-                              <span className={`font-mono text-sm font-bold ${getHypeColor(pair.hypeScore)}`}>
+                              <span className={`font-mono text-xs font-bold ${getHypeColor(pair.hypeScore)}`}>
                                 {pair.hypeScore}
                               </span>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className={`flex items-center gap-1 font-mono text-sm ${
+                            <div className={`flex items-center gap-1 font-mono text-xs sm:text-sm whitespace-nowrap ${
                               pair.priceChange >= 0 ? "text-success" : "text-destructive"
                             }`}>
                               {pair.priceChange >= 0 ? (
@@ -471,26 +492,30 @@ const MarketSniper = () => {
                               ) : (
                                 <TrendingDown className="h-3 w-3" />
                               )}
-                              {pair.priceChange >= 0 ? "+" : ""}{pair.priceChange.toFixed(1)}%
+                              {pair.priceChange >= 0 ? "+" : ""}{pair.priceChange.toFixed(0)}%
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center justify-end gap-1">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity font-mono"
+                                className="hidden sm:flex opacity-0 group-hover:opacity-100 transition-opacity font-mono text-xs h-7 px-2"
                                 onClick={(e) => handleQuickBuy(e, pair)}
                               >
                                 <ShoppingCart className="h-3 w-3 mr-1" />
-                                QUICK_BUY
+                                BUY
                               </Button>
                               <Button
                                 variant="ghost"
-                                size="sm"
-                                className="text-primary hover:bg-primary/10"
+                                size="icon"
+                                className="text-primary hover:bg-primary/10 h-7 w-7"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuickBuy(e, pair);
+                                }}
                               >
-                                <Eye className="h-4 w-4" />
+                                <Zap className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>

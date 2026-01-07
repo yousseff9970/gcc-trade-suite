@@ -197,4 +197,39 @@
                   0 0 20px hsl(var(--neon-green) / 0.3);
     }
   }
+
+  /* Safe area utilities for mobile devices */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Mobile touch feedback */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Prevent text selection on buttons */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Horizontal scroll container for tables */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .scroll-container::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .scroll-container::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 2px;
+  }
 }

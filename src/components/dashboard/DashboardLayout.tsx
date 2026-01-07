@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -64,28 +63,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       )}
 
       {/* Main Content */}
-      <motion.div
-        initial={false}
-        animate={{
-          marginLeft: sidebarCollapsed ? 72 : 260,
-        }}
-        transition={{ duration: 0.2, ease: "easeInOut" }}
+      <div
         className={cn(
           "min-h-screen transition-all duration-200",
-          "lg:ml-[260px]",
-          sidebarCollapsed && "lg:ml-[72px]",
-          "ml-0"
+          "ml-0",
+          sidebarCollapsed ? "lg:ml-[72px]" : "lg:ml-[260px]"
         )}
-        style={{
-          marginLeft: undefined, // Let the animate prop handle this
-        }}
       >
         <DashboardTopbar onMenuClick={() => setMobileMenuOpen(true)} />
         
-        <main className="p-4 md:p-6 lg:p-8 pb-24 lg:pb-8">
+        <main className="p-3 sm:p-4 md:p-6 lg:p-8 pb-24 lg:pb-8">
           {children}
         </main>
-      </motion.div>
+      </div>
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
