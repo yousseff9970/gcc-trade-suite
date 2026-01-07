@@ -535,7 +535,7 @@ const TradeTerminal = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mt-4"
+          className="mt-4 mb-20 lg:mb-0"
         >
           <Card>
             <CardHeader className="pb-2 border-b">
@@ -547,60 +547,62 @@ const TradeTerminal = () => {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="font-mono text-xs text-primary">TOKEN</TableHead>
-                    <TableHead className="font-mono text-xs text-primary">INVESTED</TableHead>
-                    <TableHead className="font-mono text-xs text-primary">CURRENT</TableHead>
-                    <TableHead className="font-mono text-xs text-primary">PNL</TableHead>
-                    <TableHead className="font-mono text-xs text-primary text-right">ACTIONS</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {positions.map((position) => (
-                    <TableRow key={position.token}>
-                      <TableCell className="font-mono font-bold">{position.token}</TableCell>
-                      <TableCell className="font-mono">${position.invested.toFixed(2)}</TableCell>
-                      <TableCell className="font-mono">${position.currentValue.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <div className={`font-mono ${position.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          <span>{position.pnl >= 0 ? '+' : ''}{position.pnl.toFixed(2)}%</span>
-                          <span className="text-muted-foreground ml-2">
-                            ({position.pnlDollar >= 0 ? '+' : ''}${position.pnlDollar.toFixed(2)})
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="font-mono text-xs h-7 border-destructive/30 text-destructive hover:bg-destructive/10"
-                          >
-                            SELL 50%
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            className="font-mono text-xs h-7 bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            SELL ALL
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap">TOKEN</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap">INVESTED</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden sm:table-cell">CURRENT</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap">PNL</TableHead>
+                      <TableHead className="font-mono text-xs text-primary text-right whitespace-nowrap">ACTIONS</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {positions.map((position) => (
+                      <TableRow key={position.token}>
+                        <TableCell className="font-mono font-bold whitespace-nowrap">{position.token}</TableCell>
+                        <TableCell className="font-mono whitespace-nowrap">${position.invested.toFixed(2)}</TableCell>
+                        <TableCell className="font-mono whitespace-nowrap hidden sm:table-cell">${position.currentValue.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <div className={`font-mono whitespace-nowrap ${position.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            <span>{position.pnl >= 0 ? '+' : ''}{position.pnl.toFixed(1)}%</span>
+                            <span className="text-muted-foreground ml-1 hidden sm:inline">
+                              ({position.pnlDollar >= 0 ? '+' : ''}${position.pnlDollar.toFixed(0)})
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex gap-1 sm:gap-2 justify-end">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="font-mono text-[10px] sm:text-xs h-7 px-2 sm:px-3 border-destructive/30 text-destructive hover:bg-destructive/10"
+                            >
+                              <span className="hidden sm:inline">SELL </span>50%
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="font-mono text-[10px] sm:text-xs h-7 px-2 sm:px-3 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              <span className="hidden sm:inline">SELL </span>ALL
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Mobile Sticky Footer */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t p-4 z-50">
-          <div className="flex gap-2">
+        {/* Mobile Sticky Footer - above bottom nav */}
+        <div className="lg:hidden fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] left-0 right-0 bg-card/95 backdrop-blur-lg border-t p-3 z-40">
+          <div className="flex gap-2 max-w-lg mx-auto">
             <Button 
-              className="flex-1 h-12 font-mono text-lg bg-success text-success-foreground hover:bg-success/90"
+              className="flex-1 h-11 font-mono text-base bg-success text-success-foreground hover:bg-success/90"
               onClick={() => {
                 setTradeType("buy");
                 setShowConfirmModal(true);
@@ -609,7 +611,7 @@ const TradeTerminal = () => {
               BUY
             </Button>
             <Button 
-              className="flex-1 h-12 font-mono text-lg bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="flex-1 h-11 font-mono text-base bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
                 setTradeType("sell");
                 setShowConfirmModal(true);

@@ -27,9 +27,9 @@ const MobileBottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-      <div className="glass glass-border border-t bg-background/95 backdrop-blur-xl">
-        <div className="flex items-center justify-around h-16 px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden safe-area-bottom">
+      <div className="border-t bg-background/95 backdrop-blur-xl">
+        <div className="flex items-center justify-around h-14 px-1 max-w-lg mx-auto">
           {navItems.map((item) => {
             const active = isActive(item.path);
             return (
@@ -37,10 +37,10 @@ const MobileBottomNav = () => {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center w-16 h-14 rounded-lg transition-all",
+                  "flex flex-col items-center justify-center flex-1 h-full py-1 rounded-lg transition-all active:scale-95",
                   active 
                     ? "text-primary" 
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground"
                 )}
               >
                 <div className={cn(
@@ -50,7 +50,7 @@ const MobileBottomNav = () => {
                   <item.icon className={cn("h-5 w-5", active && "text-primary")} />
                 </div>
                 <span className={cn(
-                  "text-[10px] mt-0.5 font-medium",
+                  "text-[10px] mt-0.5 font-medium truncate",
                   active && "text-primary"
                 )}>
                   {item.label}
@@ -61,7 +61,7 @@ const MobileBottomNav = () => {
         </div>
       </div>
       {/* Safe area padding for devices with home indicator */}
-      <div className="h-safe-area-inset-bottom bg-background" />
+      <div className="h-[env(safe-area-inset-bottom)] bg-background" />
     </nav>
   );
 };

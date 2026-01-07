@@ -74,11 +74,23 @@ const DashboardTopbar = ({ onMenuClick }: DashboardTopbarProps) => {
 
   return (
     <>
-      <header className="sticky top-0 z-30 h-16 glass glass-border border-b flex items-center justify-between px-4 md:px-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
+      <header className="sticky top-0 z-30 h-14 sm:h-16 glass glass-border border-b flex items-center justify-between px-3 sm:px-4 md:px-6">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9" onClick={onMenuClick}>
             <Menu className="h-5 w-5" />
           </Button>
+          
+          {/* Mobile search button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden h-9 w-9"
+            onClick={() => setCommandOpen(true)}
+          >
+            <Search className="h-5 w-5" />
+          </Button>
+          
+          {/* Desktop search bar */}
           <Button
             variant="outline"
             className="hidden md:flex items-center gap-2 text-muted-foreground w-64"
@@ -92,14 +104,20 @@ const DashboardTopbar = ({ onMenuClick }: DashboardTopbarProps) => {
           </Button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <WalletOverview onWithdraw={() => navigate("/wallet")} />
-          <GasTracker />
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Hide wallet and gas on mobile */}
+          <div className="hidden sm:block">
+            <WalletOverview onWithdraw={() => navigate("/wallet")} />
+          </div>
+          <div className="hidden md:block">
+            <GasTracker />
+          </div>
           <PanicButton />
           
+          {/* Theme toggle - hidden on mobile, accessible via settings */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <Button variant="ghost" size="icon" className="hidden sm:flex h-9 w-9 text-muted-foreground hover:text-foreground">
                 {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               </Button>
             </DropdownMenuTrigger>
@@ -116,17 +134,22 @@ const DashboardTopbar = ({ onMenuClick }: DashboardTopbarProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative text-muted-foreground hover:text-foreground h-9 w-9"
+            onClick={() => navigate("/notifications")}
+          >
             <Bell className="h-5 w-5" />
             <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-medium">3</span>
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
+              <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full">
+                <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                   <AvatarImage src="" alt={user?.email || ""} />
-                  <AvatarFallback className="bg-primary/10 text-primary font-medium">{userInitials}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary font-medium text-sm">{userInitials}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -134,7 +157,7 @@ const DashboardTopbar = ({ onMenuClick }: DashboardTopbarProps) => {
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">{user?.email?.split("@")[0]}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
