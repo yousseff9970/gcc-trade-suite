@@ -17,6 +17,9 @@ import Projects from "./pages/Projects";
 import Notifications from "./pages/Notifications";
 import HelpSupport from "./pages/HelpSupport";
 import NotFound from "./pages/NotFound";
+import MarketSniper from "./pages/MarketSniper";
+import GemFinder from "./pages/GemFinder";
+import TokenAnalyzer from "./pages/TokenAnalyzer";
 
 const queryClient = new QueryClient();
 
@@ -38,10 +41,13 @@ function App() {
                 <Route path="/dashboard" element={<DashboardOverview />} />
                 <Route path="/dashboard/analytics" element={<DashboardAnalytics />} />
                 <Route path="/dashboard/settings" element={<DashboardSettings />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/help" element={<HelpSupport />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/help" element={<HelpSupport />} />
+            <Route path="/market-sniper" element={<MarketSniper />} />
+            <Route path="/gem-finder" element={<GemFinder />} />
+            <Route path="/token/:id" element={<TokenAnalyzer />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

@@ -10,6 +10,7 @@ import {
   Edit,
   Eye,
   FolderPlus,
+  Download,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -244,6 +245,14 @@ const Projects = () => {
             <SelectItem value="archived">Archived</SelectItem>
           </SelectContent>
         </Select>
+        <Button
+          variant="outline"
+          className="gap-2"
+          onClick={() => toast.success("Export started! Your CSV will download shortly.")}
+        >
+          <Download className="h-4 w-4" />
+          Export
+        </Button>
       </motion.div>
 
       {/* Projects Table or Empty State */}

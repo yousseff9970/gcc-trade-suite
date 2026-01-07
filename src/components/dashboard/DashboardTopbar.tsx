@@ -1,6 +1,6 @@
-import { Menu, Bell, Search, Sun, Moon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, Bell, Search, Sun, Moon, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -9,10 +9,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import CommandPalette from "@/components/command/CommandPalette";
+import GasTracker from "@/components/crypto/GasTracker";
 
 interface DashboardTopbarProps {
   onMenuClick: () => void;
@@ -21,16 +25,41 @@ interface DashboardTopbarProps {
 const DashboardTopbar = ({ onMenuClick }: DashboardTopbarProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [darkMode, setDarkMode] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
 
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setDarkMode(isDark);
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | "system" | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      applyTheme(savedTheme);
+    }
   }, []);
 
-  const toggleDarkMode = () => {
-    document.documentElement.classList.toggle("dark");
-    setDarkMode(!darkMode);
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCommandOpen((open) => !open);
+      }
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  const applyTheme = (newTheme: "light" | "dark" | "system") => {
+    localStorage.setItem("theme", newTheme);
+    if (newTheme === "system") {
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", systemDark);
+    } else {
+      document.documentElement.classList.toggle("dark", newTheme === "dark");
+    }
+  };
+
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setTheme(newTheme);
+    applyTheme(newTheme);
   };
 
   const handleSignOut = async () => {
@@ -39,85 +68,81 @@ const DashboardTopbar = ({ onMenuClick }: DashboardTopbarProps) => {
   };
 
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || "U";
+  const isDark = document.documentElement.classList.contains("dark");
 
   return (
-    <header className="sticky top-0 z-30 h-16 glass glass-border border-b flex items-center justify-between px-4 md:px-6">
-      {/* Left Section */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="lg:hidden"
-          onClick={onMenuClick}
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-
-        {/* Search */}
-        <div className="hidden md:flex relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search..."
-            className="w-64 pl-9 bg-muted/50 border-0 focus-visible:ring-1"
-          />
+    <>
+      <header className="sticky top-0 z-30 h-16 glass glass-border border-b flex items-center justify-between px-4 md:px-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
+            <Menu className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="outline"
+            className="hidden md:flex items-center gap-2 text-muted-foreground w-64"
+            onClick={() => setCommandOpen(true)}
+          >
+            <Search className="h-4 w-4" />
+            <span className="flex-1 text-left text-sm">Search...</span>
+            <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 hidden sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </Button>
         </div>
-      </div>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-2">
-        {/* Dark Mode Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleDarkMode}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </Button>
+        <div className="flex items-center gap-2">
+          <GasTracker />
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleThemeChange("light")}>
+                <Sun className="h-4 w-4 mr-2" /> Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
+                <Moon className="h-4 w-4 mr-2" /> Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleThemeChange("system")}>
+                <Monitor className="h-4 w-4 mr-2" /> System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-        {/* Notifications */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative text-muted-foreground hover:text-foreground"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-medium">
-            3
-          </span>
-        </Button>
+          <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
+            <Bell className="h-5 w-5" />
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-medium">3</span>
+          </Button>
 
-        {/* User Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src="" alt={user?.email || ""} />
-                <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                  {userInitials}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">{user?.email?.split("@")[0]}</p>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/dashboard/settings")}>
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </header>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src="" alt={user?.email || ""} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-medium">{userInitials}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium">{user?.email?.split("@")[0]}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate("/dashboard/settings")}>Settings</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">Log out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
+    </>
   );
 };
 

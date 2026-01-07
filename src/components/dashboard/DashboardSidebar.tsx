@@ -24,6 +24,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { title: "Overview", icon: LayoutDashboard, path: "/dashboard" },
+  { title: "Market Sniper", icon: TrendingUp, path: "/market-sniper" },
   { title: "Projects", icon: FolderOpen, path: "/projects" },
   { title: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
   { title: "Notifications", icon: Bell, path: "/notifications" },
