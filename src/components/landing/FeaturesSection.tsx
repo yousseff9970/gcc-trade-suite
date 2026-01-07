@@ -1,14 +1,23 @@
 import { motion } from "framer-motion";
 import { 
-  LineChart, 
-  Shield, 
-  Smartphone, 
-  Globe, 
+  LayoutDashboard, 
+  FolderKanban, 
   Users, 
-  Zap,
+  Crosshair,
+  Search,
+  Fish,
+  Copy,
+  Wallet,
+  Receipt,
+  Gift,
+  Trophy,
+  Settings,
+  Shield,
+  HelpCircle,
   Bell,
-  BookOpen
+  Zap
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface FeaturesSectionProps {
   lang: "en" | "ar";
@@ -16,96 +25,106 @@ interface FeaturesSectionProps {
 
 const translations = {
   en: {
-    badge: "Features",
-    title: "Everything You Need to Trade with Confidence",
-    subtitle: "Powerful tools designed for beginners, trusted by professionals.",
-    features: [
+    badge: "All-In-One Platform",
+    title: "Your Complete Command Center",
+    subtitle: "Everything you need to trade, manage, and grow — unified in one powerful super app.",
+    sections: [
       {
-        icon: LineChart,
-        title: "Real-Time Charts",
-        description: "Advanced candlestick charts with 50+ technical indicators for precise analysis.",
+        name: "Core",
+        color: "from-blue-500 to-cyan-500",
+        features: [
+          { icon: LayoutDashboard, title: "Overview", description: "Mission Control dashboard with live stats, market pulse, and activity feed.", link: "/dashboard" },
+          { icon: FolderKanban, title: "Projects", description: "Manage workspace projects, tasks, and file organization.", link: "/dashboard/projects" },
+          { icon: Users, title: "Team", description: "Member management with roles, permissions, and collaboration.", link: "/dashboard/team" },
+        ]
       },
       {
-        icon: Shield,
-        title: "Bank-Level Security",
-        description: "Your funds are protected with military-grade encryption and 2FA authentication.",
+        name: "Terminal",
+        color: "from-emerald-500 to-green-500",
+        features: [
+          { icon: Crosshair, title: "Sniper Board", description: "Live new pairs feed with safety scores and quick buy actions.", link: "/dashboard/sniper" },
+          { icon: Search, title: "Scanner", description: "Contract analyzer and rug-check tool for token verification.", link: "/dashboard/scanner" },
+          { icon: Fish, title: "Whale Watch", description: "Track large transactions and whale wallet movements.", link: "/dashboard/whale-watch" },
+          { icon: Copy, title: "Copy Trader", description: "Follow successful wallets and auto-copy their trades.", link: "/dashboard/copy-trading" },
+        ]
       },
       {
-        icon: Smartphone,
-        title: "Trade Anywhere",
-        description: "Seamless experience across web, iOS, and Android devices.",
+        name: "Finance",
+        color: "from-amber-500 to-orange-500",
+        features: [
+          { icon: Wallet, title: "My Wallet", description: "Deposits, withdrawals, QR codes, and balance history.", link: "/dashboard/wallet" },
+          { icon: Receipt, title: "Transactions", description: "Complete history of all trades, transfers, and payments.", link: "/dashboard/transactions" },
+        ]
       },
       {
-        icon: Globe,
-        title: "GCC Focused",
-        description: "Support for Arabic language, local currencies, and Islamic finance options.",
+        name: "Growth",
+        color: "from-purple-500 to-pink-500",
+        features: [
+          { icon: Gift, title: "Referrals", description: "Affiliate links, sharing tools, and earnings tracking.", link: "/dashboard/referrals" },
+          { icon: Trophy, title: "Leaderboard", description: "Gamified ranking of top traders with rewards.", link: "/dashboard/leaderboard" },
+        ]
       },
       {
-        icon: Users,
-        title: "Copy Trading",
-        description: "Follow and copy trades from successful traders automatically.",
-      },
-      {
-        icon: Zap,
-        title: "Instant Execution",
-        description: "Lightning-fast order execution with minimal slippage.",
-      },
-      {
-        icon: Bell,
-        title: "Smart Alerts",
-        description: "Custom price alerts and trading signals delivered in real-time.",
-      },
-      {
-        icon: BookOpen,
-        title: "Learn as You Trade",
-        description: "Built-in tutorials and educational content for beginners.",
+        name: "Settings",
+        color: "from-slate-500 to-gray-500",
+        features: [
+          { icon: Settings, title: "Settings", description: "Preferences, notifications, and app configuration.", link: "/dashboard/settings" },
+          { icon: Shield, title: "Security", description: "2FA, session management, and account protection.", link: "/dashboard/security" },
+          { icon: HelpCircle, title: "Support", description: "Help center, FAQs, and customer support.", link: "/dashboard/support" },
+          { icon: Bell, title: "Notifications", description: "Alerts, updates, and activity notifications.", link: "/dashboard/notifications" },
+        ]
       },
     ],
   },
   ar: {
-    badge: "المميزات",
-    title: "كل ما تحتاجه للتداول بثقة",
-    subtitle: "أدوات قوية مصممة للمبتدئين، يثق بها المحترفون.",
-    features: [
+    badge: "منصة شاملة",
+    title: "مركز القيادة الخاص بك",
+    subtitle: "كل ما تحتاجه للتداول والإدارة والنمو — موحد في تطبيق واحد قوي.",
+    sections: [
       {
-        icon: LineChart,
-        title: "رسوم بيانية فورية",
-        description: "رسوم بيانية متقدمة مع أكثر من 50 مؤشر فني للتحليل الدقيق.",
+        name: "الأساسي",
+        color: "from-blue-500 to-cyan-500",
+        features: [
+          { icon: LayoutDashboard, title: "نظرة عامة", description: "لوحة تحكم مع إحصائيات حية ونبض السوق.", link: "/dashboard" },
+          { icon: FolderKanban, title: "المشاريع", description: "إدارة المشاريع والمهام وتنظيم الملفات.", link: "/dashboard/projects" },
+          { icon: Users, title: "الفريق", description: "إدارة الأعضاء مع الأدوار والصلاحيات.", link: "/dashboard/team" },
+        ]
       },
       {
-        icon: Shield,
-        title: "أمان بمستوى البنوك",
-        description: "أموالك محمية بتشفير عسكري ومصادقة ثنائية.",
+        name: "المحطة",
+        color: "from-emerald-500 to-green-500",
+        features: [
+          { icon: Crosshair, title: "لوحة القنص", description: "تغذية حية للأزواج الجديدة مع درجات الأمان.", link: "/dashboard/sniper" },
+          { icon: Search, title: "الماسح", description: "محلل العقود وأداة فحص الاحتيال.", link: "/dashboard/scanner" },
+          { icon: Fish, title: "مراقبة الحيتان", description: "تتبع المعاملات الكبيرة.", link: "/dashboard/whale-watch" },
+          { icon: Copy, title: "نسخ التداول", description: "تابع المحافظ الناجحة وانسخ صفقاتهم.", link: "/dashboard/copy-trading" },
+        ]
       },
       {
-        icon: Smartphone,
-        title: "تداول من أي مكان",
-        description: "تجربة سلسة على الويب وأجهزة iOS و Android.",
+        name: "المالية",
+        color: "from-amber-500 to-orange-500",
+        features: [
+          { icon: Wallet, title: "محفظتي", description: "الإيداعات والسحوبات ورموز QR.", link: "/dashboard/wallet" },
+          { icon: Receipt, title: "المعاملات", description: "تاريخ كامل للصفقات والتحويلات.", link: "/dashboard/transactions" },
+        ]
       },
       {
-        icon: Globe,
-        title: "مخصص لدول الخليج",
-        description: "دعم اللغة العربية والعملات المحلية وخيارات التمويل الإسلامي.",
+        name: "النمو",
+        color: "from-purple-500 to-pink-500",
+        features: [
+          { icon: Gift, title: "الإحالات", description: "روابط الإحالة وتتبع الأرباح.", link: "/dashboard/referrals" },
+          { icon: Trophy, title: "لوحة المتصدرين", description: "ترتيب أفضل المتداولين مع المكافآت.", link: "/dashboard/leaderboard" },
+        ]
       },
       {
-        icon: Users,
-        title: "نسخ الصفقات",
-        description: "تابع ونسخ صفقات المتداولين الناجحين تلقائياً.",
-      },
-      {
-        icon: Zap,
-        title: "تنفيذ فوري",
-        description: "تنفيذ أوامر سريع للغاية مع انزلاق سعري ضئيل.",
-      },
-      {
-        icon: Bell,
-        title: "تنبيهات ذكية",
-        description: "تنبيهات أسعار مخصصة وإشارات تداول في الوقت الفعلي.",
-      },
-      {
-        icon: BookOpen,
-        title: "تعلم أثناء التداول",
-        description: "دروس تعليمية ومحتوى تعليمي مدمج للمبتدئين.",
+        name: "الإعدادات",
+        color: "from-slate-500 to-gray-500",
+        features: [
+          { icon: Settings, title: "الإعدادات", description: "التفضيلات والإشعارات وتكوين التطبيق.", link: "/dashboard/settings" },
+          { icon: Shield, title: "الأمان", description: "المصادقة الثنائية وحماية الحساب.", link: "/dashboard/security" },
+          { icon: HelpCircle, title: "الدعم", description: "مركز المساعدة والأسئلة الشائعة.", link: "/dashboard/support" },
+          { icon: Bell, title: "الإشعارات", description: "التنبيهات والتحديثات.", link: "/dashboard/notifications" },
+        ]
       },
     ],
   },
@@ -132,21 +151,54 @@ const FeaturesSection = ({ lang }: FeaturesSectionProps) => {
           <p className="text-xl text-muted-foreground">{t.subtitle}</p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {t.features.map((feature, index) => (
+        <div className="space-y-12">
+          {t.sections.map((section, sectionIndex) => (
             <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
+              key={section.name}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="group bg-card rounded-2xl p-6 border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300"
+              transition={{ delay: sectionIndex * 0.1 }}
             >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <feature.icon className="h-6 w-6 text-primary" />
+              {/* Section Header */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className={`h-1 w-12 rounded-full bg-gradient-to-r ${section.color}`} />
+                <h3 className="text-xl font-bold text-foreground">{section.name}</h3>
               </div>
-              <h3 className="font-display font-semibold text-lg mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground text-sm">{feature.description}</p>
+
+              {/* Features Grid */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {section.features.map((feature, featureIndex) => (
+                  <Link
+                    key={feature.title}
+                    to={feature.link}
+                    className="block"
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: sectionIndex * 0.1 + featureIndex * 0.05 }}
+                      className="group relative bg-card/50 backdrop-blur-sm rounded-xl p-5 border border-border hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 h-full"
+                    >
+                      {/* Gradient glow on hover */}
+                      <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${section.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                      
+                      <div className="relative z-10">
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${section.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                          <feature.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <h4 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                          {feature.title}
+                        </h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </Link>
+                ))}
+              </div>
             </motion.div>
           ))}
         </div>
