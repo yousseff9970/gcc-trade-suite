@@ -28,6 +28,7 @@ import WhaleWatch from "./pages/WhaleWatch";
 import CopyTrading from "./pages/CopyTrading";
 import GemFinder from "./pages/GemFinder";
 import TokenAnalyzer from "./pages/TokenAnalyzer";
+import TradeTerminal from "./pages/TradeTerminal";
 
 // Finance Section
 import Wallet from "./pages/Wallet";
@@ -76,6 +77,7 @@ function App() {
                 <Route path="/copy-trading" element={<CopyTrading />} />
                 <Route path="/gem-finder" element={<GemFinder />} />
                 <Route path="/token/:id" element={<TokenAnalyzer />} />
+                <Route path="/trade" element={<TradeTerminal />} />
 
                 {/* Finance Section */}
                 <Route path="/wallet" element={<Wallet />} />

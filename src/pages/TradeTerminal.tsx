@@ -1,0 +1,720 @@
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import {
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  BarChart3,
+  ArrowUpDown,
+  Settings2,
+  Zap,
+  ChevronDown,
+  Wallet,
+  AlertCircle,
+  Check,
+  X,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+
+// Mock token data
+const mockTokens: Record<string, TokenData> = {
+  "1": { id: "1", name: "NeuralAI", symbol: "NRAI", price: 0.00234, change24h: 345.2, volume24h: 1250000, marketCap: 4500000, chain: "SOL" },
+  "2": { id: "2", name: "MoonDoge", symbol: "MDOGE", price: 0.000045, change24h: -45.8, volume24h: 85000, marketCap: 120000, chain: "ETH" },
+  "3": { id: "3", name: "SolanaGem", symbol: "SGEM", price: 1.234, change24h: 567.4, volume24h: 8900000, marketCap: 45000000, chain: "SOL" },
+  "default": { id: "default", name: "Pepe", symbol: "PEPE", price: 0.00001234, change24h: 12.5, volume24h: 125000000, marketCap: 890000000, chain: "ETH" },
+};
+
+interface TokenData {
+  id: string;
+  name: string;
+  symbol: string;
+  price: number;
+  change24h: number;
+  volume24h: number;
+  marketCap: number;
+  chain: string;
+}
+
+// Order Book Data
+const generateOrderBook = () => {
+  const asks = Array.from({ length: 10 }, (_, i) => ({
+    price: 0.00234 + (i + 1) * 0.00001,
+    amount: Math.random() * 50000 + 10000,
+    total: 0,
+  })).reverse();
+  
+  const bids = Array.from({ length: 10 }, (_, i) => ({
+    price: 0.00234 - (i + 1) * 0.00001,
+    amount: Math.random() * 50000 + 10000,
+    total: 0,
+  }));
+  
+  return { asks, bids };
+};
+
+// Recent Trades
+const generateRecentTrades = () => 
+  Array.from({ length: 15 }, (_, i) => ({
+    id: i,
+    price: 0.00234 + (Math.random() - 0.5) * 0.0001,
+    amount: Math.random() * 10000 + 1000,
+    time: new Date(Date.now() - i * 15000),
+    isBuy: Math.random() > 0.5,
+  }));
+
+// Positions
+const mockPositions = [
+  { token: "PEPE", invested: 500, currentValue: 892.50, pnl: 78.5, pnlDollar: 392.50 },
+  { token: "NRAI", invested: 1200, currentValue: 2340, pnl: 95.0, pnlDollar: 1140 },
+  { token: "SGEM", invested: 800, currentValue: 650, pnl: -18.75, pnlDollar: -150 },
+];
+
+const TradeTerminal = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tokenId = searchParams.get("token") || "default";
+  const token = mockTokens[tokenId] || mockTokens["default"];
+  
+  const [orderBook] = useState(generateOrderBook());
+  const [recentTrades] = useState(generateRecentTrades());
+  const [positions] = useState(mockPositions);
+  
+  const [tradeType, setTradeType] = useState<"buy" | "sell">("buy");
+  const [payAmount, setPayAmount] = useState("1");
+  const [slippage, setSlippage] = useState("1");
+  const [priority, setPriority] = useState<"low" | "medium" | "turbo">("medium");
+  const [timeframe, setTimeframe] = useState("1h");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  
+  const receiveAmount = parseFloat(payAmount || "0") / token.price;
+  
+  const formatPrice = (price: number) => {
+    if (price < 0.0001) return price.toFixed(8);
+    if (price < 1) return price.toFixed(6);
+    return price.toFixed(4);
+  };
+
+  const formatNumber = (value: number) => {
+    if (value >= 1000000) return `${(value / 1000000).toFixed(2)}M`;
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+    return value.toFixed(2);
+  };
+
+  return (
+    <DashboardLayout>
+      <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
+        {/* Terminal Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[#00ff9d] to-emerald-600 flex items-center justify-center">
+                <BarChart3 className="h-6 w-6 text-black" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl font-bold font-mono text-white">
+                    {token.symbol}<span className="text-muted-foreground">/SOL</span>
+                  </h1>
+                  <Badge variant="outline" className="font-mono text-xs border-[#00ff9d]/30 text-[#00ff9d]">
+                    {token.chain}
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground text-sm font-mono">{token.name}</p>
+              </div>
+            </div>
+            
+            {/* Price Display */}
+            <div className="flex items-center gap-6">
+              <div className="text-right">
+                <p className={`text-3xl font-bold font-mono ${token.change24h >= 0 ? 'text-[#00ff9d]' : 'text-[#ff4d4d]'}`}>
+                  ${formatPrice(token.price)}
+                </p>
+                <div className={`flex items-center gap-1 justify-end ${token.change24h >= 0 ? 'text-[#00ff9d]' : 'text-[#ff4d4d]'}`}>
+                  {token.change24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                  <span className="font-mono">{token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%</span>
+                </div>
+              </div>
+              <div className="text-right text-sm">
+                <p className="text-muted-foreground">24h Vol</p>
+                <p className="font-mono text-white">${formatNumber(token.volume24h)}</p>
+              </div>
+              <div className="text-right text-sm">
+                <p className="text-muted-foreground">MCap</p>
+                <p className="font-mono text-white">${formatNumber(token.marketCap)}</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Main Trading Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Column A: Chart */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-6"
+          >
+            <Card className="h-full border-[#1a1a1a] bg-[#0d0d0d]">
+              <CardHeader className="pb-2 border-b border-[#1a1a1a]">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="font-mono text-sm text-[#00ff9d]">PRICE_CHART</CardTitle>
+                  <div className="flex gap-1">
+                    {['1m', '5m', '15m', '1h', '4h', '1d'].map((tf) => (
+                      <Button
+                        key={tf}
+                        size="sm"
+                        variant={timeframe === tf ? "default" : "ghost"}
+                        className={`font-mono text-xs h-7 px-2 ${
+                          timeframe === tf 
+                            ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
+                            : 'text-muted-foreground hover:text-white hover:bg-[#1a1a1a]'
+                        }`}
+                        onClick={() => setTimeframe(tf)}
+                      >
+                        {tf}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4">
+                {/* TradingView-style Chart Placeholder */}
+                <div className="h-[400px] bg-[#0a0a0a] rounded-lg border border-[#1a1a1a] relative overflow-hidden">
+                  {/* Grid Lines */}
+                  <div className="absolute inset-0 grid grid-cols-6 grid-rows-4">
+                    {Array.from({ length: 24 }).map((_, i) => (
+                      <div key={i} className="border-[#1a1a1a] border-r border-b" />
+                    ))}
+                  </div>
+                  
+                  {/* Candlesticks */}
+                  <div className="absolute inset-0 flex items-end justify-between px-4 pb-8 pt-4">
+                    {Array.from({ length: 30 }).map((_, i) => {
+                      const isGreen = Math.random() > 0.4;
+                      const height = 20 + Math.random() * 60;
+                      const wickHeight = height + Math.random() * 20;
+                      return (
+                        <div key={i} className="relative flex flex-col items-center" style={{ height: `${wickHeight}%` }}>
+                          <div 
+                            className={`w-0.5 absolute top-0 ${isGreen ? 'bg-[#00ff9d]/50' : 'bg-[#ff4d4d]/50'}`}
+                            style={{ height: `${(wickHeight - height) / 2}%` }}
+                          />
+                          <div 
+                            className={`w-2 rounded-sm ${isGreen ? 'bg-[#00ff9d]' : 'bg-[#ff4d4d]'}`}
+                            style={{ height: `${height}%`, marginTop: `${(wickHeight - height) / 4}%` }}
+                          />
+                          <div 
+                            className={`w-0.5 ${isGreen ? 'bg-[#00ff9d]/50' : 'bg-[#ff4d4d]/50'}`}
+                            style={{ height: `${(wickHeight - height) / 2}%` }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Trade Markers */}
+                  <div className="absolute top-20 left-1/4 flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full bg-[#00ff9d] animate-pulse" />
+                    <span className="text-xs font-mono text-[#00ff9d]">BUY $120</span>
+                  </div>
+                  <div className="absolute top-32 right-1/3 flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full bg-[#ff4d4d] animate-pulse" />
+                    <span className="text-xs font-mono text-[#ff4d4d]">SELL $85</span>
+                  </div>
+                  
+                  {/* Price Line */}
+                  <div className="absolute right-0 top-1/3 flex items-center">
+                    <div className="h-px w-full bg-[#00ff9d]/30 absolute" />
+                    <div className="bg-[#00ff9d] px-2 py-0.5 rounded text-xs font-mono text-black">
+                      ${formatPrice(token.price)}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Column B: Order Book & Recent Trades */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="lg:col-span-3 hidden lg:block"
+          >
+            <div className="space-y-4 h-full flex flex-col">
+              {/* Order Book */}
+              <Card className="flex-1 border-[#1a1a1a] bg-[#0d0d0d]">
+                <CardHeader className="pb-2 border-b border-[#1a1a1a]">
+                  <CardTitle className="font-mono text-sm text-[#00ff9d]">ORDER_BOOK</CardTitle>
+                </CardHeader>
+                <CardContent className="p-2">
+                  <div className="grid grid-cols-3 text-xs font-mono text-muted-foreground mb-2 px-2">
+                    <span>PRICE</span>
+                    <span className="text-right">SIZE</span>
+                    <span className="text-right">TOTAL</span>
+                  </div>
+                  
+                  {/* Asks */}
+                  <div className="space-y-0.5 mb-2">
+                    {orderBook.asks.slice(0, 6).map((order, i) => (
+                      <div key={`ask-${i}`} className="grid grid-cols-3 text-xs font-mono px-2 py-0.5 relative">
+                        <div className="absolute inset-0 bg-[#ff4d4d]/10" style={{ width: `${(order.amount / 60000) * 100}%` }} />
+                        <span className="text-[#ff4d4d] relative z-10">{formatPrice(order.price)}</span>
+                        <span className="text-right text-white relative z-10">{formatNumber(order.amount)}</span>
+                        <span className="text-right text-muted-foreground relative z-10">{formatNumber(order.amount * order.price)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Spread */}
+                  <div className="py-2 text-center border-y border-[#1a1a1a]">
+                    <span className="font-mono text-lg font-bold text-[#00ff9d]">${formatPrice(token.price)}</span>
+                  </div>
+                  
+                  {/* Bids */}
+                  <div className="space-y-0.5 mt-2">
+                    {orderBook.bids.slice(0, 6).map((order, i) => (
+                      <div key={`bid-${i}`} className="grid grid-cols-3 text-xs font-mono px-2 py-0.5 relative">
+                        <div className="absolute inset-0 bg-[#00ff9d]/10" style={{ width: `${(order.amount / 60000) * 100}%` }} />
+                        <span className="text-[#00ff9d] relative z-10">{formatPrice(order.price)}</span>
+                        <span className="text-right text-white relative z-10">{formatNumber(order.amount)}</span>
+                        <span className="text-right text-muted-foreground relative z-10">{formatNumber(order.amount * order.price)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Recent Trades */}
+              <Card className="flex-1 border-[#1a1a1a] bg-[#0d0d0d]">
+                <CardHeader className="pb-2 border-b border-[#1a1a1a]">
+                  <CardTitle className="font-mono text-sm text-[#00ff9d]">RECENT_TRADES</CardTitle>
+                </CardHeader>
+                <CardContent className="p-2">
+                  <div className="grid grid-cols-3 text-xs font-mono text-muted-foreground mb-2 px-2">
+                    <span>PRICE</span>
+                    <span className="text-right">AMOUNT</span>
+                    <span className="text-right">TIME</span>
+                  </div>
+                  <div className="space-y-0.5 max-h-[200px] overflow-y-auto">
+                    {recentTrades.map((trade) => (
+                      <div key={trade.id} className="grid grid-cols-3 text-xs font-mono px-2 py-0.5">
+                        <span className={trade.isBuy ? 'text-[#00ff9d]' : 'text-[#ff4d4d]'}>
+                          {formatPrice(trade.price)}
+                        </span>
+                        <span className="text-right text-white">{formatNumber(trade.amount)}</span>
+                        <span className="text-right text-muted-foreground">
+                          {trade.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+
+          {/* Column C: Execution Panel */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-3"
+          >
+            <Card className="border-[#1a1a1a] bg-[#0d0d0d]">
+              <CardHeader className="pb-2 border-b border-[#1a1a1a]">
+                <CardTitle className="font-mono text-sm text-[#00ff9d]">EXECUTE_TRADE</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                {/* Buy/Sell Tabs */}
+                <Tabs value={tradeType} onValueChange={(v) => setTradeType(v as "buy" | "sell")}>
+                  <TabsList className="w-full bg-[#1a1a1a] p-1">
+                    <TabsTrigger 
+                      value="buy" 
+                      className="flex-1 font-mono data-[state=active]:bg-[#00ff9d] data-[state=active]:text-black"
+                    >
+                      BUY
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="sell" 
+                      className="flex-1 font-mono data-[state=active]:bg-[#ff4d4d] data-[state=active]:text-white"
+                    >
+                      SELL
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="buy" className="mt-4 space-y-4">
+                    <SwapForm 
+                      tradeType="buy" 
+                      payAmount={payAmount}
+                      setPayAmount={setPayAmount}
+                      receiveAmount={receiveAmount}
+                      token={token}
+                      onSwap={() => setShowConfirmModal(true)}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="sell" className="mt-4 space-y-4">
+                    <SwapForm 
+                      tradeType="sell" 
+                      payAmount={payAmount}
+                      setPayAmount={setPayAmount}
+                      receiveAmount={receiveAmount}
+                      token={token}
+                      onSwap={() => setShowConfirmModal(true)}
+                    />
+                  </TabsContent>
+                </Tabs>
+                
+                {/* Settings Accordion */}
+                <Accordion type="single" collapsible className="mt-4">
+                  <AccordionItem value="settings" className="border-[#1a1a1a]">
+                    <AccordionTrigger className="text-sm font-mono text-muted-foreground hover:text-white py-2">
+                      <div className="flex items-center gap-2">
+                        <Settings2 className="h-4 w-4" />
+                        TRADE_SETTINGS
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-2 space-y-4">
+                      {/* Slippage */}
+                      <div>
+                        <label className="text-xs font-mono text-muted-foreground mb-2 block">
+                          SLIPPAGE_TOLERANCE
+                        </label>
+                        <div className="flex gap-2">
+                          {['0.5', '1', '3', 'auto'].map((s) => (
+                            <Button
+                              key={s}
+                              size="sm"
+                              variant={slippage === s ? "default" : "outline"}
+                              className={`flex-1 font-mono text-xs ${
+                                slippage === s 
+                                  ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
+                                  : 'border-[#1a1a1a] hover:bg-[#1a1a1a]'
+                              }`}
+                              onClick={() => setSlippage(s)}
+                            >
+                              {s === 'auto' ? 'AUTO' : `${s}%`}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Priority Fee */}
+                      <div>
+                        <label className="text-xs font-mono text-muted-foreground mb-2 block">
+                          PRIORITY_FEE
+                        </label>
+                        <div className="flex gap-2">
+                          {[
+                            { key: 'low', label: 'LOW', sol: '0.0001' },
+                            { key: 'medium', label: 'MED', sol: '0.0005' },
+                            { key: 'turbo', label: 'TURBO', sol: '0.002' },
+                          ].map((p) => (
+                            <Button
+                              key={p.key}
+                              size="sm"
+                              variant={priority === p.key ? "default" : "outline"}
+                              className={`flex-1 font-mono text-xs ${
+                                priority === p.key 
+                                  ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
+                                  : 'border-[#1a1a1a] hover:bg-[#1a1a1a]'
+                              }`}
+                              onClick={() => setPriority(p.key as typeof priority)}
+                            >
+                              <div className="flex flex-col items-center">
+                                <span>{p.label}</span>
+                                <span className="text-[10px] opacity-70">{p.sol} SOL</span>
+                              </div>
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Positions Table */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-4"
+        >
+          <Card className="border-[#1a1a1a] bg-[#0d0d0d]">
+            <CardHeader className="pb-2 border-b border-[#1a1a1a]">
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-mono text-sm text-[#00ff9d]">MY_POSITIONS</CardTitle>
+                <Badge variant="outline" className="font-mono text-xs border-[#00ff9d]/30 text-[#00ff9d]">
+                  {positions.length} ACTIVE
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-[#1a1a1a] hover:bg-transparent">
+                    <TableHead className="font-mono text-xs text-[#00ff9d]">TOKEN</TableHead>
+                    <TableHead className="font-mono text-xs text-[#00ff9d]">INVESTED</TableHead>
+                    <TableHead className="font-mono text-xs text-[#00ff9d]">CURRENT</TableHead>
+                    <TableHead className="font-mono text-xs text-[#00ff9d]">PNL</TableHead>
+                    <TableHead className="font-mono text-xs text-[#00ff9d] text-right">ACTIONS</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {positions.map((position) => (
+                    <TableRow key={position.token} className="border-[#1a1a1a] hover:bg-[#1a1a1a]/50">
+                      <TableCell className="font-mono font-bold">{position.token}</TableCell>
+                      <TableCell className="font-mono">${position.invested.toFixed(2)}</TableCell>
+                      <TableCell className="font-mono">${position.currentValue.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <div className={`font-mono ${position.pnl >= 0 ? 'text-[#00ff9d]' : 'text-[#ff4d4d]'}`}>
+                          <span>{position.pnl >= 0 ? '+' : ''}{position.pnl.toFixed(2)}%</span>
+                          <span className="text-muted-foreground ml-2">
+                            ({position.pnlDollar >= 0 ? '+' : ''}${position.pnlDollar.toFixed(2)})
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="font-mono text-xs h-7 border-[#ff4d4d]/30 text-[#ff4d4d] hover:bg-[#ff4d4d]/10"
+                          >
+                            SELL 50%
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="font-mono text-xs h-7 bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90"
+                          >
+                            SELL ALL
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Mobile Sticky Footer */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#1a1a1a] p-4 z-50">
+          <div className="flex gap-2">
+            <Button 
+              className="flex-1 h-12 font-mono text-lg bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90"
+              onClick={() => {
+                setTradeType("buy");
+                setShowConfirmModal(true);
+              }}
+            >
+              BUY
+            </Button>
+            <Button 
+              className="flex-1 h-12 font-mono text-lg bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90"
+              onClick={() => {
+                setTradeType("sell");
+                setShowConfirmModal(true);
+              }}
+            >
+              SELL
+            </Button>
+          </div>
+        </div>
+
+        {/* Confirmation Modal */}
+        <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+          <DialogContent className="bg-[#0d0d0d] border-[#1a1a1a]">
+            <DialogHeader>
+              <DialogTitle className="font-mono text-[#00ff9d]">CONFIRM_{tradeType.toUpperCase()}</DialogTitle>
+              <DialogDescription className="font-mono text-muted-foreground">
+                Review your trade before executing
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="flex justify-between items-center p-3 bg-[#1a1a1a] rounded">
+                <span className="text-muted-foreground font-mono text-sm">You Pay</span>
+                <span className="font-mono font-bold">{payAmount} SOL</span>
+              </div>
+              <div className="flex justify-center">
+                <ArrowUpDown className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="flex justify-between items-center p-3 bg-[#1a1a1a] rounded">
+                <span className="text-muted-foreground font-mono text-sm">You Receive</span>
+                <span className="font-mono font-bold">{formatNumber(receiveAmount)} {token.symbol}</span>
+              </div>
+              <div className="text-xs text-muted-foreground font-mono space-y-1">
+                <div className="flex justify-between">
+                  <span>Slippage</span>
+                  <span>{slippage === 'auto' ? 'Auto' : `${slippage}%`}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Priority Fee</span>
+                  <span>{priority.toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+            <DialogFooter className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 font-mono border-[#1a1a1a]"
+              >
+                <X className="h-4 w-4 mr-2" />
+                CANCEL
+              </Button>
+              <Button 
+                onClick={() => setShowConfirmModal(false)}
+                className={`flex-1 font-mono ${
+                  tradeType === 'buy' 
+                    ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
+                    : 'bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90'
+                }`}
+              >
+                <Check className="h-4 w-4 mr-2" />
+                CONFIRM
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+// Swap Form Component
+interface SwapFormProps {
+  tradeType: "buy" | "sell";
+  payAmount: string;
+  setPayAmount: (value: string) => void;
+  receiveAmount: number;
+  token: TokenData;
+  onSwap: () => void;
+}
+
+const SwapForm = ({ tradeType, payAmount, setPayAmount, receiveAmount, token, onSwap }: SwapFormProps) => {
+  const formatNumber = (value: number) => {
+    if (value >= 1000000) return `${(value / 1000000).toFixed(2)}M`;
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+    return value.toFixed(2);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* You Pay */}
+      <div>
+        <div className="flex justify-between text-xs font-mono text-muted-foreground mb-2">
+          <span>YOU_{tradeType === 'buy' ? 'PAY' : 'SELL'}</span>
+          <span className="flex items-center gap-1">
+            <Wallet className="h-3 w-3" />
+            Balance: 12.5 {tradeType === 'buy' ? 'SOL' : token.symbol}
+          </span>
+        </div>
+        <div className="relative">
+          <Input
+            type="number"
+            value={payAmount}
+            onChange={(e) => setPayAmount(e.target.value)}
+            className="h-14 text-xl font-mono pr-20 bg-[#1a1a1a] border-[#2a2a2a] focus:border-[#00ff9d]"
+            placeholder="0.00"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 px-2 text-xs font-mono text-[#00ff9d] hover:bg-[#00ff9d]/10"
+              onClick={() => setPayAmount("12.5")}
+            >
+              MAX
+            </Button>
+            <span className="font-mono font-bold">{tradeType === 'buy' ? 'SOL' : token.symbol}</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Swap Icon */}
+      <div className="flex justify-center">
+        <div className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center">
+          <ArrowUpDown className="h-5 w-5 text-muted-foreground" />
+        </div>
+      </div>
+      
+      {/* You Receive */}
+      <div>
+        <div className="flex justify-between text-xs font-mono text-muted-foreground mb-2">
+          <span>YOU_RECEIVE</span>
+        </div>
+        <div className="relative">
+          <Input
+            type="text"
+            value={formatNumber(receiveAmount)}
+            readOnly
+            className="h-14 text-xl font-mono pr-20 bg-[#1a1a1a] border-[#2a2a2a]"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <span className="font-mono font-bold">{tradeType === 'buy' ? token.symbol : 'SOL'}</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Swap Button */}
+      <Button 
+        onClick={onSwap}
+        className={`w-full h-14 text-lg font-mono font-bold ${
+          tradeType === 'buy' 
+            ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
+            : 'bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90'
+        }`}
+      >
+        <Zap className="h-5 w-5 mr-2" />
+        SWAP
+      </Button>
+      
+      {/* Info */}
+      <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+        <AlertCircle className="h-3 w-3" />
+        <span>1 {tradeType === 'buy' ? 'SOL' : token.symbol} ≈ {formatNumber(1 / token.price)} {tradeType === 'buy' ? token.symbol : 'SOL'}</span>
+      </div>
+    </div>
+  );
+};
+
+export default TradeTerminal;
